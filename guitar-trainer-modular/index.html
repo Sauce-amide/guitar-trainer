@@ -25,6 +25,22 @@
 <body>
     <div class="container">
         <h1>🎸 吉他指板音符训练器</h1>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="切换深色模式">
+            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+        </button>
         
         <div class="error-message" id="errorMessage"></div>
 
@@ -53,15 +69,15 @@
                     <input type="number" id="noteTimeoutInput" value="5" min="1" max="30">
                     <span>秒</span>
                 </div>
-                <p style="margin-top: 5px; color: #666; font-size: 0.9em;">超过这个时间未弹对将自动跳过</p>
+                <p style="margin-top: 5px; color: var(--text-secondary); font-size: 0.9em;">超过这个时间汴弃将自动跳过</p>
             </div>
 
             <div class="setup-section">
                 <h2>音频输入设备</h2>
-                <select id="audioDeviceSelect" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;">
+                <select id="audioDeviceSelect" style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1em;">
                     <option value="">加载中...</option>
                 </select>
-                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">⚠️ 请选择真实麦克风或音频接口，不要选择虚拟音频设备（如BlackHole）</p>
+                <p style="margin-top: 10px; color: var(--text-secondary); font-size: 0.9em;">⚠️ 请选择真实麦克风或音频接口，不要选择虚拟音频设备（如BlackHole）</p>
             </div>
 
             <div style="display: flex; gap: 10px;">
@@ -160,13 +176,12 @@
                 <button class="btn-primary" id="trainAgainBtn">再来一次</button>
             </div>
         </div>
-        </div>
 
         <!-- Copyright Footer -->
         <div class="copyright-footer">
             © 2026 <a href="https://github.com/Sauce-amide/guitar-trainer" target="_blank">Sauce-amide</a> | 
             Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a> | 
-            <span style="color: #999;">禁止商业用途</span>
+            <span style="color: var(--text-tertiary);">禁止商业用途</span>
         </div>
     </div>
 

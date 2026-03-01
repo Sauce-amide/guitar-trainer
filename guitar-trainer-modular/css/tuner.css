@@ -15,12 +15,12 @@
 }
 
 .tuner-header h2 {
-    color: #1e3c72;
+    color: var(--text-primary);
     margin-bottom: 10px;
 }
 
 .tuner-instruction {
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.95em;
 }
 
@@ -35,13 +35,13 @@
 
 .string-btn {
     padding: 15px 10px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 10px;
-    background: white;
+    background: var(--container-bg);
     cursor: pointer;
     font-size: 1.1em;
     font-weight: bold;
-    color: #1e3c72;
+    color: var(--text-primary);
     transition: all 0.2s;
     text-align: center;
     line-height: 1.4;
@@ -52,12 +52,12 @@
     display: block;
     font-size: 0.7em;
     font-weight: normal;
-    color: #999;
+    color: var(--text-tertiary);
     margin-top: 5px;
 }
 
 .string-btn:hover {
-    background: #f0f0f0;
+    background: var(--button-hover-bg);
     transform: translateY(-2px);
 }
 
@@ -81,7 +81,7 @@
 /* 当前检测到的频率 */
 .current-frequency {
     font-size: 1.2em;
-    color: #666;
+    color: var(--text-secondary);
     margin-bottom: 10px;
     font-family: monospace;
 }
@@ -90,7 +90,7 @@
 .current-note {
     font-size: 4em;
     font-weight: bold;
-    color: #1e3c72;
+    color: var(--text-primary);
     margin: 20px 0;
 }
 
@@ -103,15 +103,15 @@
 }
 
 .cents-deviation.flat {
-    color: #f44336; /* 偏低 - 红色 */
+    color: var(--danger-color); /* 偏低 - 红色 */
 }
 
 .cents-deviation.sharp {
-    color: #ff9800; /* 偏高 - 橙色 */
+    color: var(--warning-color); /* 偏高 - 橙色 */
 }
 
 .cents-deviation.in-tune {
-    color: #4CAF50; /* 准确 - 绿色 */
+    color: var(--success-color); /* 准确 - 绿色 */
 }
 
 /* ==================== 调音指示器 ==================== */
@@ -126,11 +126,11 @@
     height: 80px;
     /* 渐变条: 中间绿色(准确)，两边红色(失准) */
     background: linear-gradient(to right, 
-        #f44336 0%,   /* 左边红色: 偏低很多 */
-        #ff9800 40%,  /* 橙色: 偏低一点 */
-        #4CAF50 50%,  /* 中间绿色: 准确 */
-        #ff9800 60%,  /* 橙色: 偏高一点 */
-        #f44336 100%  /* 右边红色: 偏高很多 */
+        var(--danger-color) 0%,   /* 左边红色: 偏低很多 */
+        var(--warning-color) 40%,  /* 橙色: 偏低一点 */
+        var(--success-color) 50%,  /* 中閴绿色: 准确 */
+        var(--warning-color) 60%,  /* 橙色: 偏高一点 */
+        var(--danger-color) 100%  /* 右边红色: 偏高很多 */
     );
     border-radius: 10px;
     margin-bottom: 30px;
@@ -167,7 +167,7 @@
     left: 50%;  /* 默认居中 */
     width: 4px;
     height: 100px;
-    background: #333;
+    background: var(--text-primary);
     transform: translateX(-50%);
     transition: left 0.1s ease-out; /* 平滑移动 */
     border-radius: 2px;
@@ -185,7 +185,7 @@
     height: 0;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
-    border-top: 12px solid #333; /* 向下的三角形 */
+    border-top: 12px solid var(--text-primary); /* 向下的三角形 */
 }
 
 /* 调音状态文字 - 显示在指示器下方 */
@@ -208,4 +208,23 @@
 
 .tuner-controls button {
     flex: 1;
+}
+
+/* ==================== 移动端响应式 ==================== */
+@media (max-width: 600px) {
+    .string-selector {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .string-btn {
+        padding: 12px 8px;
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 400px) {
+    .string-selector {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }

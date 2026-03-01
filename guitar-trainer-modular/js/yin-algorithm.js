@@ -231,7 +231,8 @@ function autoCorrelate(buffer, sampleRate) {
     }
     rms = Math.sqrt(rms / buffer.length);
     
-    // 噪声门: 信号太弱就不处理
+    // 噪声门: 信号太弱就不处理 (降低阈值以支持未插电电吉他)
+    if (rms < 0.0005) {
     if (rms < 0.003) {
         return -1;
     }

@@ -17,6 +17,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>吉他指板音符训练器</title>
     <style>
+        /* ==================== CSS 变量定义 ==================== */
+        :root {
+            --bg-gradient-start: #1e3c72;
+            --bg-gradient-end: #2a5298;
+            --container-bg: #ffffff;
+            --text-primary: #1e3c72;
+            --text-secondary: #666666;
+            --text-tertiary: #999999;
+            --border-color: #e0e0e0;
+            --button-hover-bg: #f0f0f0;
+            --input-bg: #ffffff;
+            --card-bg: #f5f5f5;
+            --shadow-color: rgba(0, 0, 0, 0.3);
+            --error-bg: #ffebee;
+            --error-text: #c62828;
+            --success-color: #4CAF50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+        }
+        
+        /* 深色模式 */
+        body.dark-mode {
+            --bg-gradient-start: #0d1b2a;
+            --bg-gradient-end: #1b263b;
+            --container-bg: #1e2936;
+            --text-primary: #e0e6ed;
+            --text-secondary: #b0b8c1;
+            --text-tertiary: #8892a0;
+            --border-color: #2d3a4a;
+            --button-hover-bg: #2a3847;
+            --input-bg: #252f3d;
+            --card-bg: #252f3d;
+            --shadow-color: rgba(0, 0, 0, 0.6);
+            --error-bg: #3a1f1f;
+            --error-text: #ff6b6b;
+        }
+
+        /* 深色模式样式覆盖 */
+        body.dark-mode input,
+        body.dark-mode select,
+        body.dark-mode button:not(.theme-toggle) {
+            background: var(--input-bg);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+        
+        body.dark-mode .note-checkbox:hover,
+        body.dark-mode .btn-secondary:hover {
+            background: var(--button-hover-bg);
+        }
+        
+        body.dark-mode .error-message {
+            background: var(--error-bg);
+            color: var(--error-text);
+        }
+        
+        body.dark-mode .copyright-footer {
+            border-top-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -25,28 +86,32 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            transition: background 0.3s ease;
         }
 
         .container {
-            background: white;
+            background: var(--container-bg);
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px var(--shadow-color);
             padding: 40px;
             max-width: 800px;
             width: 100%;
+            position: relative;
+            transition: background 0.3s ease, box-shadow 0.3s ease;
         }
 
         h1 {
             text-align: center;
-            color: #1e3c72;
+            color: var(--text-primary);
             margin-bottom: 30px;
             font-size: 2.5em;
+            transition: color 0.3s ease;
         }
 
         .screen {
@@ -68,8 +133,8 @@
             margin-bottom: 30px;
         }
 
-        .setup-section h2 {
-            color: #2a5298;
+        h2 { color: var(--text-primary); transition: color 0.3s ease; }
+            color: var(--text-primary);
             margin-bottom: 15px;
             font-size: 1.3em;
         }
@@ -86,7 +151,18 @@
             align-items: center;
             justify-content: center;
             padding: 15px;
-            background: #f5f5f5;
+            background: var(--card-bg);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            user-select: none;
+        }
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: var(--card-bg);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s;
@@ -95,13 +171,13 @@
         }
 
         .note-checkbox:hover {
-            background: #e8f0fe;
-            border-color: #2a5298;
+            background: var(--button-hover-bg);
+            border-color: var(--text-primary);
         }
 
         .note-checkbox.checked {
-            background: #e8f0fe;
-            border-color: #4CAF50;
+            background: var(--button-hover-bg);
+            border-color: var(--success-color);
         }
 
         .note-checkbox input {
@@ -109,6 +185,11 @@
         }
 
         .note-checkbox label {
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1.1em;
+            color: var(--text-primary);
+        }
             cursor: pointer;
             font-weight: 500;
             font-size: 1.1em;
@@ -123,7 +204,7 @@
         .quick-actions button {
             flex: 1;
             padding: 8px;
-            background: #e8f0fe;
+            background: var(--button-hover-bg);
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -131,7 +212,7 @@
         }
 
         .quick-actions button:hover {
-            background: #d2e3fc;
+            background: var(--card-bg);
         }
 
         .timer-input {
@@ -143,7 +224,7 @@
         .timer-input input {
             width: 100px;
             padding: 10px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border-color);
             border-radius: 8px;
             font-size: 1.1em;
         }
@@ -167,7 +248,7 @@
         }
 
         .btn-primary:disabled {
-            background: #ccc;
+            background: var(--button-hover-bg);
             cursor: not-allowed;
             transform: none;
         }
@@ -182,13 +263,13 @@
 
         .timer-display {
             font-size: 1.5em;
-            color: #2a5298;
+            color: var(--text-primary);
             font-weight: bold;
         }
 
         .progress {
             font-size: 1.2em;
-            color: #666;
+            color: var(--text-secondary);
         }
 
         .note-display {
@@ -199,23 +280,23 @@
         .target-note {
             font-size: 8em;
             font-weight: bold;
-            color: #1e3c72;
+            color: var(--text-primary);
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         .detected-note {
             font-size: 2em;
-            color: #666;
+            color: var(--text-secondary);
             min-height: 2.5em;
         }
 
         .detected-note.close {
-            color: #ff9800;
+            color: var(--warning-color);
         }
 
         .detected-note.correct {
-            color: #4CAF50;
+            color: var(--success-color);
             animation: pulse 0.3s ease-in-out;
         }
 
@@ -228,7 +309,7 @@
         .note-timeout-bar {
             width: 100%;
             height: 8px;
-            background: #e0e0e0;
+            background: var(--border-color);
             border-radius: 4px;
             overflow: hidden;
             margin-top: 15px;
@@ -247,7 +328,7 @@
         }
 
         .timeout-progress.danger {
-            background: #F44336;
+            background: var(--danger-color);
         }
 
         .mic-indicator {
@@ -258,16 +339,16 @@
         .waveform-canvas {
             width: 100%;
             height: 150px;
-            background: #f5f5f5;
+            background: var(--card-bg);
             border-radius: 10px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border-color);
             display: block;
         }
 
         .frequency-display {
             text-align: center;
             margin-top: 10px;
-            color: #666;
+            color: var(--text-secondary);
             font-size: 0.9em;
             font-family: monospace;
         }
@@ -289,12 +370,12 @@
         }
 
         .btn-pause {
-            background: #ff9800;
+            background: var(--warning-color);
             color: white;
         }
 
         .btn-stop {
-            background: #f44336;
+            background: var(--danger-color);
             color: white;
         }
 
@@ -304,7 +385,7 @@
         }
 
         .results h2 {
-            color: #4CAF50;
+            color: var(--success-color);
             font-size: 2.5em;
             margin-bottom: 30px;
         }
@@ -318,19 +399,19 @@
 
         .stat-item {
             padding: 20px;
-            background: #f5f5f5;
+            background: var(--card-bg);
             border-radius: 12px;
         }
 
         .stat-value {
             font-size: 2.5em;
             font-weight: bold;
-            color: #1e3c72;
+            color: var(--text-primary);
             margin-bottom: 5px;
         }
 
         .stat-label {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 0.9em;
         }
 
@@ -363,12 +444,12 @@
         }
 
         .tuner-header h2 {
-            color: #1e3c72;
+            color: var(--text-primary);
             margin-bottom: 10px;
         }
 
         .tuner-instruction {
-            color: #666;
+            color: var(--text-secondary);
             font-size: 0.95em;
         }
 
@@ -381,13 +462,13 @@
 
         .string-btn {
             padding: 15px 10px;
-            border: 2px solid #e0e0e0;
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             background: white;
             cursor: pointer;
             font-size: 1.1em;
             font-weight: bold;
-            color: #1e3c72;
+            color: var(--text-primary);
             transition: all 0.2s;
             text-align: center;
             line-height: 1.4;
@@ -397,12 +478,12 @@
             display: block;
             font-size: 0.7em;
             font-weight: normal;
-            color: #999;
+            color: var(--text-tertiary);
             margin-top: 5px;
         }
 
         .string-btn:hover {
-            background: #f0f0f0;
+            background: var(--button-hover-bg);
             transform: translateY(-2px);
         }
 
@@ -423,7 +504,7 @@
 
         .current-frequency {
             font-size: 1.2em;
-            color: #666;
+            color: var(--text-secondary);
             margin-bottom: 10px;
             font-family: monospace;
         }
@@ -431,7 +512,7 @@
         .current-note {
             font-size: 4em;
             font-weight: bold;
-            color: #1e3c72;
+            color: var(--text-primary);
             margin: 20px 0;
         }
 
@@ -443,15 +524,15 @@
         }
 
         .cents-deviation.flat {
-            color: #f44336;
+            color: var(--danger-color);
         }
 
         .cents-deviation.sharp {
-            color: #ff9800;
+            color: var(--warning-color);
         }
 
         .cents-deviation.in-tune {
-            color: #4CAF50;
+            color: var(--success-color);
         }
 
         .tuning-indicator {
@@ -490,7 +571,7 @@
             left: 50%;
             width: 4px;
             height: 100px;
-            background: #333;
+            background: var(--text-primary);
             transform: translateX(-50%);
             transition: left 0.1s ease-out;
             border-radius: 2px;
@@ -507,7 +588,7 @@
             height: 0;
             border-left: 8px solid transparent;
             border-right: 8px solid transparent;
-            border-top: 12px solid #333;
+            border-top: 12px solid var(--text-primary);
         }
 
         .tuning-status {
@@ -532,10 +613,10 @@
 
         .btn-secondary {
             padding: 15px 30px;
-            border: 2px solid #2a5298;
+            border: 2px solid var(--text-primary);
             border-radius: 10px;
-            background: white;
-            color: #2a5298;
+            background: var(--container-bg);
+            color: var(--text-primary);
             font-size: 1.1em;
             font-weight: 600;
             cursor: pointer;
@@ -543,21 +624,85 @@
         }
 
         .btn-secondary:hover {
-            background: #f0f0f0;
+            background: var(--button-hover-bg);
             transform: translateY(-2px);
         }
 
+
+        /* ==================== 主题切换按钮 ==================== */
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--button-hover-bg);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--text-primary);
+        }
+        
+        .theme-toggle svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-primary);
+            transition: transform 0.3s ease;
+        }
+        
+        .theme-toggle:hover svg {
+            transform: rotate(20deg);
+        }
+        
+        body.dark-mode .sun-icon { display: none; }
+        body:not(.dark-mode) .moon-icon { display: none; }
+
+        /* ==================== 移动端响应式 ==================== */
+        @media (max-width: 600px) {
+            .string-selector {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .string-btn {
+                padding: 12px 8px;
+                font-size: 1em;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .string-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
         .copyright-footer {
             text-align: center;
             margin-top: 30px;
             padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-            color: #666;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-secondary);
             font-size: 0.85em;
         }
 
         .copyright-footer a {
-            color: #2a5298;
+            color: var(--text-primary);
             text-decoration: none;
         }
 
@@ -569,6 +714,24 @@
 <body>
     <div class="container">
         <h1>🎸 吉他指板音符训练器</h1>
+        
+        <!-- Theme Toggle Button -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="切换深色模式">
+            <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="5"/>
+                <line x1="12" y1="1" x2="12" y2="3"/>
+                <line x1="12" y1="21" x2="12" y2="23"/>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+                <line x1="1" y1="12" x2="3" y2="12"/>
+                <line x1="21" y1="12" x2="23" y2="12"/>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+            </svg>
+            <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+        </button>
 
         <div class="error-message" id="errorMessage"></div>
 
@@ -597,15 +760,15 @@
                     <input type="number" id="noteTimeoutInput" value="5" min="1" max="30">
                     <span>秒</span>
                 </div>
-                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">超过这个时间未弹对将自动跳过</p>
+                <p style="margin-top: 10px; color: var(--text-secondary); font-size: 0.9em;">超过这个时间未弹对将自动跳过</p>
             </div>
 
             <div class="setup-section">
                 <h2>音频输入设备</h2>
-                <select id="audioDeviceSelect" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;">
+                <select id="audioDeviceSelect" style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 8px; font-size: 1em;">
                     <option value="">加载中...</option>
                 </select>
-                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">⚠️ 请选择真实麦克风或音频接口，不要选择虚拟音频设备（如BlackHole）</p>
+                <p style="margin-top: 10px; color: var(--text-secondary); font-size: 0.9em;">⚠️ 请选择真实麦克风或音频接口，不要选择虚拟音频设备（如BlackHole）</p>
             </div>
 
             <div style="display: flex; gap: 10px;">
@@ -704,13 +867,12 @@
                 <button class="btn-primary" onclick="resetTraining()">再来一次</button>
             </div>
         </div>
-        </div>
 
         <!-- Copyright Footer -->
         <div class="copyright-footer">
             © 2026 <a href="https://github.com/Sauce-amide/guitar-trainer" target="_blank">Sauce-amide</a> | 
             Licensed under <a href="https://creativecommons.org/licenses/by-nc/4.0/" target="_blank">CC BY-NC 4.0</a> | 
-            <span style="color: #999;">禁止商业用途</span>
+            <span style="color: var(--text-tertiary);">禁止商业用途</span>
         </div>
     </div>
 
@@ -764,8 +926,41 @@
         let noteTimeout = 5;             // 每个音符的超时时间 (秒)
         let noteStartTime = 0;           // 当前音符开始时间
         let noteTimeoutInterval = null;  // 超时计时器
+
+        // ==================== 深色模式 ==================== 
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+            
+            if (theme === 'dark') {
+                document.body.classList.add('dark-mode');
+            }
+            
+            const toggleBtn = document.getElementById('themeToggle');
+            if (toggleBtn) {
+                toggleBtn.addEventListener('click', toggleTheme);
+            }
+            
+            // Listen for system preference changes
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+                if (!localStorage.getItem('theme')) {
+                    if (e.matches) {
+                        document.body.classList.add('dark-mode');
+                    } else {
+                        document.body.classList.remove('dark-mode');
+                    }
+                }
+            });
+        }
+        
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
         // Initialize
         function init() {
+            initTheme();  // Initialize dark mode
             loadSettings();
             createNoteCheckboxes();
             loadAudioDevices();
@@ -1049,7 +1244,7 @@
             // Detect pitch
             const frequency = autoCorrelate(buffer, audioContext.sampleRate);
             
-            if (frequency > 0 && volume > 0.003) {
+            if (frequency > 0 && volume > 0.0005) {
                 const note = frequencyToNote(frequency);
                 updateFrequencyDisplay(frequency, note, volume);
                 updateDetectedNote(note, frequency);
@@ -1069,20 +1264,23 @@
             const width = canvas.width;
             const height = canvas.height;
             
-            // Clear canvas
-            ctx.fillStyle = '#f5f5f5';
+            // Clear canvas - use CSS variable
+            const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+            ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
             
-            // Draw center line
-            ctx.strokeStyle = '#e0e0e0';
+            // Draw center line - use CSS variable
+            const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+            ctx.strokeStyle = borderColor;
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(0, height / 2);
             ctx.lineTo(width, height / 2);
             ctx.stroke();
             
-            // Draw waveform
-            ctx.strokeStyle = '#2a5298';
+            // Draw waveform - use CSS variable
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim();
+            ctx.strokeStyle = primaryColor;
             ctx.lineWidth = 2;
             ctx.beginPath();
             
@@ -1107,7 +1305,8 @@
             // 添加调试信息 - 显示波形统计
             const rms = Math.sqrt(buffer.reduce((sum, val) => sum + val * val, 0) / buffer.length);
             const peak = Math.max(...Array.from(buffer).map(Math.abs));
-            ctx.fillStyle = '#666';
+            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
+            ctx.fillStyle = textColor;
             ctx.font = '12px monospace';
             ctx.fillText(`RMS: ${(rms * 100).toFixed(2)}% | Peak: ${(peak * 100).toFixed(2)}%`, 10, 20);
         }
@@ -1116,13 +1315,13 @@
             const display = document.getElementById('frequencyDisplay');
             if (frequency > 0) {
                 display.textContent = `频率: ${frequency.toFixed(2)} Hz | 音符: ${note} | 音量: ${(volume * 100).toFixed(1)}%`;
-                display.style.color = '#2a5298';
-            } else if (volume > 0.005) {
+                display.style.color = 'var(--text-primary)';
+            } else if (volume > 0.001) {
                 display.textContent = `音量: ${(volume * 100).toFixed(1)}% | 音量太小或频率不明确`;
-                display.style.color = '#999';
+                display.style.color = 'var(--text-tertiary)';
             } else {
                 display.textContent = '等待音频输入...';
-                display.style.color = '#999';
+                display.style.color = 'var(--text-tertiary)';
             }
         }
 
@@ -1223,8 +1422,8 @@
             }
             rms = Math.sqrt(rms / buffer.length);
             
-            // Noise gate - ignore very quiet sounds
-            if (rms < 0.003) return -1;
+            // Noise gate - ignore very quiet sounds (lowered threshold for unplugged electric guitar)
+            if (rms < 0.0005) return -1;
             
             // Use YIN algorithm for pitch detection
             return yinPitchDetection(buffer, sampleRate);
@@ -1392,7 +1591,7 @@
             // 显示超时消息
             const detectedEl = document.getElementById('detectedNote');
             detectedEl.textContent = '超时！';
-            detectedEl.style.color = '#F44336';
+            detectedEl.style.color = 'var(--danger-color)';
             
             // 等待一下然后切换到下一个音符
             setTimeout(() => {
@@ -1576,7 +1775,7 @@
             // Detect pitch
             const frequency = autoCorrelate(buffer, audioContext.sampleRate);
             
-            if (frequency > 0 && volume > 0.003) {
+            if (frequency > 0 && volume > 0.0005) {
                 updateTunerDisplay(frequency, volume);
             } else {
                 // No clear pitch detected
@@ -1585,7 +1784,7 @@
                 document.getElementById('tunerCents').textContent = '0';
                 document.getElementById('tunerCents').className = 'cents-deviation';
                 document.getElementById('tuningStatus').textContent = '等待音频输入...';
-                document.getElementById('tuningStatus').style.color = '#999';
+                document.getElementById('tuningStatus').style.color = 'var(--text-tertiary)';
             }
         }
 
@@ -1596,11 +1795,13 @@
             const height = tunerWaveformCanvas.height;
             const ctx = tunerWaveformCtx;
             
-            ctx.fillStyle = '#f5f5f5';
+            const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+            ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
             
             ctx.lineWidth = 2;
-            ctx.strokeStyle = '#2a5298';
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim();
+            ctx.strokeStyle = primaryColor;
             ctx.beginPath();
             
             const sliceWidth = width / buffer.length;
@@ -1622,7 +1823,8 @@
             ctx.stroke();
             
             // Draw center line
-            ctx.strokeStyle = '#ddd';
+            const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+            ctx.strokeStyle = borderColor;
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(0, height / 2);
@@ -1660,15 +1862,15 @@
             if (Math.abs(smoothedCents) <= 5) {
                 centsElement.className = 'cents-deviation in-tune';
                 statusElement.textContent = '✓ 已调准';
-                statusElement.style.color = '#4CAF50';
+                statusElement.style.color = 'var(--success-color)';
             } else if (Math.abs(smoothedCents) <= 15) {
                 centsElement.className = smoothedCents < 0 ? 'cents-deviation flat' : 'cents-deviation sharp';
                 statusElement.textContent = smoothedCents < 0 ? '↓ 偏低' : '↑ 偏高';
-                statusElement.style.color = '#ff9800';
+                statusElement.style.color = 'var(--warning-color)';
             } else {
                 centsElement.className = smoothedCents < 0 ? 'cents-deviation flat' : 'cents-deviation sharp';
                 statusElement.textContent = smoothedCents < 0 ? '↓↓ 太低' : '↑↑ 太高';
-                statusElement.style.color = '#f44336';
+                statusElement.style.color = 'var(--danger-color)';
             }
             
             // Move needle using smoothed cents (map -50 to +50 cents to 0% to 100% position)

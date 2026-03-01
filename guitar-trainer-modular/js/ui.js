@@ -73,6 +73,15 @@ function clearError() {
 }
 
 /**
+ * 获取CSS变量颜色值
+ * @param {string} varName - CSS变量名称（不扇--）
+ * @returns {string} 颜色值（hex或rgba）
+ */
+function getCSSVarColor(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue('--' + varName).trim();
+}
+
+/**
  * 绘制音频波形到 Canvas
  * 
  * 绘制内容:
@@ -95,11 +104,11 @@ function drawWaveform(buffer, canvas, ctx) {
     const height = canvas.height;
     
     // 1. 清空画布 (灰色背景)
-    ctx.fillStyle = '#f5f5f5';
+    ctx.fillStyle = getCSSVarColor('card-bg');
     ctx.fillRect(0, 0, width, height);
     
     // 2. 绘制中心线 (0 振幅线)
-    ctx.strokeStyle = '#e0e0e0';
+    ctx.strokeStyle = getCSSVarColor('border-color');
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(0, height / 2);
@@ -107,7 +116,7 @@ function drawWaveform(buffer, canvas, ctx) {
     ctx.stroke();
     
     // 3. 绘制波形
-    ctx.strokeStyle = '#2a5298';
+    ctx.strokeStyle = getCSSVarColor('text-primary');
     ctx.lineWidth = 2;
     ctx.beginPath();
     
@@ -134,7 +143,7 @@ function drawWaveform(buffer, canvas, ctx) {
         const rms = Math.sqrt(buffer.reduce((sum, val) => sum + val * val, 0) / buffer.length);
         const peak = Math.max(...Array.from(buffer).map(Math.abs));
         
-        ctx.fillStyle = '#666';
+        ctx.fillStyle = getCSSVarColor('text-secondary');
         ctx.font = '12px monospace';
         ctx.fillText(
             `RMS: ${(rms * 100).toFixed(2)}% | Peak: ${(peak * 100).toFixed(2)}%`,
@@ -164,7 +173,7 @@ function updateFrequencyDisplay(frequency, note, volume) {
         // 有效频率
         display.textContent = `频率: ${frequency.toFixed(2)} Hz | 音符: ${note} | 音量: ${(volume * 100).toFixed(1)}%`;
         display.style.color = '#2a5298';
-    } else if (volume > 0.005) {
+    } else if (volume > 0.001) {
         // 音量太小
         display.textContent = `音量: ${(volume * 100).toFixed(1)}% | 音量太小或频率不明确`;
         display.style.color = '#999';

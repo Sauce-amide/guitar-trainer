@@ -29,6 +29,44 @@ import {
     saveSettings 
 } from './ui.js';
 
+// ==================== 深色模式 ==================== 
+/**
+ * 初始化主题 (深色模式)
+ */
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = savedTheme || (systemPrefersDark ? 'dark' : 'light');
+    
+    if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+    }
+    
+    const toggleBtn = document.getElementById('themeToggle');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleTheme);
+    }
+    
+    // Listen for system preference changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+            if (e.matches) {
+                document.body.classList.add('dark-mode');
+            } else {
+                document.body.classList.remove('dark-mode');
+            }
+        }
+    });
+}
+
+/**
+ * 切换主题
+ */
+function toggleTheme() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
 // ==================== 应用初始化 ====================
 /**
  * 应用启动入口
@@ -43,6 +81,10 @@ async function init() {
     if (DEBUG_MODE) console.log('Application initializing...');
     
     try {
+        // 初始化主题 (深色模式)
+        initTheme();
+        
+        // 加载设置
         // 加载设置
         const settings = loadSettings();
         if (settings) {
