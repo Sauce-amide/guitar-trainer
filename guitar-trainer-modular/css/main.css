@@ -146,3 +146,22 @@ h1 {
 .flash-correct {
     animation: flashGreen 0.5s ease-out;
 }
+
+/* ==================== 版权页脚 ==================== */
+.copyright-footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+    color: #666;
+    font-size: 0.85em;
+}
+
+.copyright-footer a {
+    color: #2a5298;
+    text-decoration: none;
+}
+
+.copyright-footer a:hover {
+    text-decoration: underline;
+}

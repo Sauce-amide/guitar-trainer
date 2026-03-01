@@ -1,4 +1,11 @@
 /**
+ * 🎸 吉他指板音符训练器 | Guitar Fretboard Note Trainer
+ * 
+ * Copyright (c) 2026 Sauce-amide
+ * Licensed under CC BY-NC 4.0 (Attribution-NonCommercial)
+ * https://github.com/Sauce-amide/guitar-trainer
+ * 
+ * ====================================================================
  * main.js - 应用入口和事件监听器
  * 
  * 功能:

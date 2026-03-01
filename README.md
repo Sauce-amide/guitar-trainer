@@ -105,13 +105,25 @@ python3 -m http.server 8000
 - **单体版本** (`index.html`)：适合部署，所有代码在一个文件中
 - **模块化版本** (`guitar-trainer-modular/`)：适合学习和维护，代码分模块组织
 
+## ⚖️ 许可证
+
+本项目采用 **CC BY-NC 4.0**（知识共享 署名-非商业性使用 4.0 国际许可协议）。
+
+**这意味着：**
+- ✅ 可以自由学习、研究代码
+- ✅ 可以为个人、教育目的使用
+- ✅ 可以修改和分享（需注明原作者）
+- ❌ **不可用于任何商业用途**
+- ❌ 不可在付费产品/服务中使用
+- ❌ 不可用于盈利目的
+
+**商业使用需获得授权**。如需商业许可，请通过 GitHub Issues 联系。
+
+查看完整许可证：[LICENSE](./LICENSE) | [CC BY-NC 4.0 说明](https://creativecommons.org/licenses/by-nc/4.0/deed.zh)
+
 ## 🤝 贡献
 
-欢迎提交 Issue 和 Pull Request！
-
-## 📄 许可
-
-MIT License
+## 🙏 致谢
 
 ## 🙏 致谢
 
@@ -122,3 +134,7 @@ MIT License
 
 **开发者**: 使用 ❤️ 和 🎸 制作
 # guitar-trainer
+
+---
+
+© 2026 Sauce-amide. Licensed under CC BY-NC 4.0.
