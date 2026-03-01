@@ -1,0 +1,255 @@
+/**
+ * screens.css - 设置屏幕、训练屏幕、结果屏幕的样式
+ * 
+ * 包含:
+ * - 设置屏幕 (Setup Screen): 音符选择、时间设置
+ * - 训练屏幕 (Training Screen): 音符显示、波形图、控制按钮
+ * - 结果屏幕 (Results Screen): 统计数据展示
+ */
+
+/* ==================== 设置屏幕 (Setup Screen) ==================== */
+.setup-section {
+    margin-bottom: 30px;
+}
+
+.setup-section h2 {
+    color: #2a5298;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+/* 音符网格 - 12个半音的选择界面 */
+.notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* 音符复选框按钮 - 可点击整个区域 */
+.note-checkbox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 2px solid transparent;
+    user-select: none;
+}
+
+.note-checkbox:hover {
+    background: #e8f0fe;
+    border-color: #2a5298;
+}
+
+.note-checkbox.checked {
+    background: #e8f0fe;
+    border-color: #4CAF50;
+}
+
+.note-checkbox input {
+    display: none; /* 隐藏原生checkbox */
+}
+
+.note-checkbox label {
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1.1em;
+}
+
+/* 快捷操作按钮 (全选/全不选) */
+.quick-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.quick-actions button {
+    flex: 1;
+    padding: 8px;
+    background: #e8f0fe;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9em;
+}
+
+.quick-actions button:hover {
+    background: #d2e3fc;
+}
+
+/* 时间输入框 */
+.timer-input {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.timer-input input {
+    width: 100px;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 1.1em;
+}
+
+/* ==================== 训练屏幕 (Training Screen) ==================== */
+/* 顶部信息栏 - 显示计时器和进度 */
+.training-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.timer-display {
+    font-size: 1.5em;
+    color: #2a5298;
+    font-weight: bold;
+}
+
+.progress {
+    font-size: 1.2em;
+    color: #666;
+}
+
+/* 音符显示区域 */
+.note-display {
+    text-align: center;
+    margin: 60px 0;
+}
+
+/* 目标音符 - 大号显示用户需要弹奏的音符 */
+.target-note {
+    font-size: 8em;
+    font-weight: bold;
+    color: #1e3c72;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 超时进度条 - 显示剩余时间 */
+.note-timeout-bar {
+    width: 100%;
+    max-width: 400px;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    margin: 20px auto 0;
+    overflow: hidden;
+    position: relative;
+}
+
+.timeout-progress {
+    height: 100%;
+    background: linear-gradient(90deg, #4CAF50, #FFC107, #f44336);
+    border-radius: 4px;
+    transition: width 0.1s linear;
+    width: 100%;
+}
+
+/* 超时时颜色变红 */
+.timeout-progress.warning {
+    background: linear-gradient(90deg, #FFC107, #f44336);
+}
+
+.timeout-progress.danger {
+    background: #f44336;
+}
+
+/* 检测到的音符显示 */
+.detected-note {
+    font-size: 2em;
+    color: #666;
+    min-height: 2.5em;
+}
+
+.detected-note.close {
+    color: #ff9800; /* 接近时显示橙色 */
+}
+
+.detected-note.correct {
+    color: #4CAF50; /* 正确时显示绿色并脉冲 */
+    animation: pulse 0.3s ease-in-out;
+}
+
+/* 麦克风指示器和波形图 */
+.mic-indicator {
+    width: 100%;
+    margin: 30px 0;
+}
+
+.waveform-canvas {
+    width: 100%;
+    height: 150px;
+    background: #f5f5f5;
+    border-radius: 10px;
+    border: 2px solid #e0e0e0;
+    display: block;
+}
+
+/* 频率显示 - 等宽字体显示检测到的频率和音量 */
+.frequency-display {
+    text-align: center;
+    margin-top: 10px;
+    color: #666;
+    font-size: 0.9em;
+    font-family: monospace;
+}
+
+/* 训练控制按钮 */
+.training-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.training-controls button {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+/* ==================== 结果屏幕 (Results Screen) ==================== */
+.results {
+    text-align: center;
+}
+
+.results h2 {
+    color: #4CAF50;
+    font-size: 2.5em;
+    margin-bottom: 30px;
+}
+
+/* 统计数据网格 */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+    margin: 40px 0;
+}
+
+.stat-item {
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 12px;
+}
+
+.stat-value {
+    font-size: 2.5em;
+    font-weight: bold;
+    color: #1e3c72;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 0.9em;
+}

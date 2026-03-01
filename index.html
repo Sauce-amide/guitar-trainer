@@ -1,0 +1,1725 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吉他指板音符训练器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Setup Screen */
+        .setup-section {
+            margin-bottom: 30px;
+        }
+
+        .setup-section h2 {
+            color: #2a5298;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .note-checkbox {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            user-select: none;
+        }
+
+        .note-checkbox:hover {
+            background: #e8f0fe;
+            border-color: #2a5298;
+        }
+
+        .note-checkbox.checked {
+            background: #e8f0fe;
+            border-color: #4CAF50;
+        }
+
+        .note-checkbox input {
+            display: none;
+        }
+
+        .note-checkbox label {
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        .quick-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .quick-actions button {
+            flex: 1;
+            padding: 8px;
+            background: #e8f0fe;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .quick-actions button:hover {
+            background: #d2e3fc;
+        }
+
+        .timer-input {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .timer-input input {
+            width: 100px;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1.1em;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.02);
+        }
+
+        .btn-primary:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Training Screen */
+        .training-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .timer-display {
+            font-size: 1.5em;
+            color: #2a5298;
+            font-weight: bold;
+        }
+
+        .progress {
+            font-size: 1.2em;
+            color: #666;
+        }
+
+        .note-display {
+            text-align: center;
+            margin: 60px 0;
+        }
+
+        .target-note {
+            font-size: 8em;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .detected-note {
+            font-size: 2em;
+            color: #666;
+            min-height: 2.5em;
+        }
+
+        .detected-note.close {
+            color: #ff9800;
+        }
+
+        .detected-note.correct {
+            color: #4CAF50;
+            animation: pulse 0.3s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* Note Timeout Progress Bar */
+        .note-timeout-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .timeout-progress {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #4CAF50 0%, #8BC34A 50%, #CDDC39 100%);
+            transition: width 0.1s linear;
+            border-radius: 4px;
+        }
+
+        .timeout-progress.warning {
+            background: linear-gradient(90deg, #FFC107 0%, #FF9800 100%);
+        }
+
+        .timeout-progress.danger {
+            background: #F44336;
+        }
+
+        .mic-indicator {
+            width: 100%;
+            margin: 30px 0;
+        }
+
+        .waveform-canvas {
+            width: 100%;
+            height: 150px;
+            background: #f5f5f5;
+            border-radius: 10px;
+            border: 2px solid #e0e0e0;
+            display: block;
+        }
+
+        .frequency-display {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+            font-size: 0.9em;
+            font-family: monospace;
+        }
+
+        .training-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .training-controls button {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-pause {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn-stop {
+            background: #f44336;
+            color: white;
+        }
+
+        /* Results Screen */
+        .results {
+            text-align: center;
+        }
+
+        .results h2 {
+            color: #4CAF50;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+
+        .stat-item {
+            padding: 20px;
+            background: #f5f5f5;
+            border-radius: 12px;
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .flash-correct {
+            animation: flashGreen 0.5s ease-out;
+        }
+
+        @keyframes flashGreen {
+            0%, 100% { background: white; }
+            50% { background: #c8e6c9; }
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Tuner Screen */
+        .tuner-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .tuner-header h2 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        .tuner-instruction {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .string-selector {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .string-btn {
+            padding: 15px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #1e3c72;
+            transition: all 0.2s;
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .string-btn span {
+            display: block;
+            font-size: 0.7em;
+            font-weight: normal;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .string-btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+
+        .string-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .string-btn.active span {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tuner-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .current-frequency {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 10px;
+            font-family: monospace;
+        }
+
+        .current-note {
+            font-size: 4em;
+            font-weight: bold;
+            color: #1e3c72;
+            margin: 20px 0;
+        }
+
+        .cents-deviation {
+            font-size: 2em;
+            font-weight: bold;
+            font-family: monospace;
+            margin: 10px 0;
+        }
+
+        .cents-deviation.flat {
+            color: #f44336;
+        }
+
+        .cents-deviation.sharp {
+            color: #ff9800;
+        }
+
+        .cents-deviation.in-tune {
+            color: #4CAF50;
+        }
+
+        .tuning-indicator {
+            position: relative;
+            height: 80px;
+            background: linear-gradient(to right, #f44336 0%, #ff9800 40%, #4CAF50 50%, #ff9800 60%, #f44336 100%);
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: visible;
+        }
+
+        .indicator-scale {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .scale-mark {
+            position: absolute;
+            color: white;
+            font-size: 0.85em;
+            font-weight: bold;
+            transform: translateX(-50%);
+        }
+
+        .scale-mark.center {
+            font-size: 1.1em;
+        }
+
+        .indicator-needle {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            width: 4px;
+            height: 100px;
+            background: #333;
+            transform: translateX(-50%);
+            transition: left 0.1s ease-out;
+            border-radius: 2px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .indicator-needle::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-top: 12px solid #333;
+        }
+
+        .tuning-status {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.2em;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .tuner-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .tuner-controls button {
+            flex: 1;
+        }
+
+        .btn-secondary {
+            padding: 15px 30px;
+            border: 2px solid #2a5298;
+            border-radius: 10px;
+            background: white;
+            color: #2a5298;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎸 吉他指板音符训练器</h1>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- Setup Screen -->
+        <div class="screen active" id="setupScreen">
+            <div class="setup-section">
+                <h2>选择要训练的音符</h2>
+                <div class="quick-actions">
+                    <button onclick="selectAllNotes()">全选</button>
+                    <button onclick="deselectAllNotes()">全不选</button>
+                </div>
+                <div class="notes-grid" id="notesGrid"></div>
+            </div>
+
+            <div class="setup-section">
+                <h2>训练时长</h2>
+                <div class="timer-input">
+                    <input type="number" id="durationInput" value="5" min="1" max="60">
+                    <span>分钟</span>
+                </div>
+            </div>
+
+            <div class="setup-section">
+                <h2>每个音符超时时间</h2>
+                <div class="timer-input">
+                    <input type="number" id="noteTimeoutInput" value="5" min="1" max="30">
+                    <span>秒</span>
+                </div>
+                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">超过这个时间未弹对将自动跳过</p>
+            </div>
+
+            <div class="setup-section">
+                <h2>音频输入设备</h2>
+                <select id="audioDeviceSelect" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;">
+                    <option value="">加载中...</option>
+                </select>
+                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">⚠️ 请选择真实麦克风或音频接口，不要选择虚拟音频设备（如BlackHole）</p>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-secondary" onclick="showTuner()" style="flex: 1;">🎸 调音器</button>
+                <button class="btn-primary" onclick="startTraining()" style="flex: 2;">开始训练</button>
+            </div>
+        </div>
+
+        <!-- Tuner Screen -->
+        <div class="screen" id="tunerScreen">
+            <div class="tuner-header">
+                <h2>吉他调音器</h2>
+                <p class="tuner-instruction">请弹奏一根弦，调音器会自动检测</p>
+            </div>
+
+            <div class="string-selector">
+                <button class="string-btn" data-string="0" onclick="selectString(0)">E2<br><span>82.41 Hz</span></button>
+                <button class="string-btn" data-string="1" onclick="selectString(1)">A2<br><span>110.00 Hz</span></button>
+                <button class="string-btn" data-string="2" onclick="selectString(2)">D3<br><span>146.83 Hz</span></button>
+                <button class="string-btn" data-string="3" onclick="selectString(3)">G3<br><span>196.00 Hz</span></button>
+                <button class="string-btn" data-string="4" onclick="selectString(4)">B3<br><span>246.94 Hz</span></button>
+                <button class="string-btn" data-string="5" onclick="selectString(5)">E4<br><span>329.63 Hz</span></button>
+            </div>
+
+            <div class="tuner-display">
+                <div class="current-frequency" id="tunerFrequency">-- Hz</div>
+                <div class="current-note" id="tunerNote">--</div>
+                <div class="cents-deviation" id="tunerCents">0</div>
+            </div>
+
+            <div class="tuning-indicator">
+                <div class="indicator-scale">
+                    <div class="scale-mark" style="left: 0%">-50</div>
+                    <div class="scale-mark" style="left: 25%">-25</div>
+                    <div class="scale-mark center" style="left: 50%">0</div>
+                    <div class="scale-mark" style="left: 75%">+25</div>
+                    <div class="scale-mark" style="right: 0%">+50</div>
+                </div>
+                <div class="indicator-needle" id="tunerNeedle"></div>
+                <div class="tuning-status" id="tuningStatus">准备调音</div>
+            </div>
+
+            <canvas id="tunerWaveform" class="waveform-canvas" width="800" height="100"></canvas>
+
+            <div class="tuner-controls">
+                <button class="btn-secondary" onclick="backToSetup()">返回设置</button>
+                <button class="btn-primary" onclick="startTrainingFromTuner()">开始训练</button>
+            </div>
+        </div>
+
+        <!-- Training Screen -->
+        <div class="screen" id="trainingScreen">
+            <div class="training-header">
+                <div class="timer-display" id="timerDisplay">05:00</div>
+                <div class="progress" id="progressDisplay">0 / 0</div>
+            </div>
+
+            <div class="note-display">
+                <div class="target-note" id="targetNote">A</div>
+                <div class="detected-note" id="detectedNote">等待检测...</div>
+            </div>
+
+                <div class="note-timeout-bar" id="noteTimeoutBar">
+                    <div class="timeout-progress" id="timeoutProgress"></div>
+                </div>
+
+            <div class="mic-indicator">
+                <canvas id="waveformCanvas" class="waveform-canvas" width="800" height="150"></canvas>
+                <div class="frequency-display" id="frequencyDisplay">等待音频输入...</div>
+            </div>
+
+            <div class="training-controls">
+                <button class="btn-pause" onclick="pauseTraining()">暂停</button>
+                <button class="btn-stop" onclick="stopTraining()">结束训练</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div class="screen" id="resultsScreen">
+            <div class="results">
+                <h2>🎉 训练完成！</h2>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalNotes">0</div>
+                        <div class="stat-label">完成音符数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="accuracy">0%</div>
+                        <div class="stat-label">准确率</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="timeTaken">0:00</div>
+                        <div class="stat-label">用时</div>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="resetTraining()">再来一次</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const NOTES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const NOTE_FREQUENCIES = {
+            'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+            'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+            'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
+        };
+
+        let audioContext, analyser, microphone, animationFrame;
+        let waveformCanvas, waveformCtx;
+        let selectedNotes = [...NOTES];
+        let currentNote = '';
+        let correctCount = 0;
+        let totalAttempts = 0;
+        let startTime, endTime;
+        let trainingDuration = 5 * 60; // seconds
+        let timerInterval;
+        let remainingTime;
+        let isPaused = false;
+        let lastNote = '';
+
+        // Tuner mode variables
+        const GUITAR_STRINGS = [
+            { name: 'E2', frequency: 82.41, note: 'E', octave: 2 },
+            { name: 'A2', frequency: 110.00, note: 'A', octave: 2 },
+            { name: 'D3', frequency: 146.83, note: 'D', octave: 3 },
+            { name: 'G3', frequency: 196.00, note: 'G', octave: 3 },
+            { name: 'B3', frequency: 246.94, note: 'B', octave: 3 },
+            { name: 'E4', frequency: 329.63, note: 'E', octave: 4 }
+        ];
+        let isTunerMode = false;
+        let selectedString = null;
+        let tunerWaveformCanvas, tunerWaveformCtx;
+        
+        // Smoothing variables for tuner
+        let smoothedCents = 0;
+        let smoothedFrequency = 0;
+        const TUNER_SMOOTHING_FACTOR = 0.3; // Lower = more smoothing (0.1-0.5)
+        
+        // Training mode detection variables
+        let detectionHistory = [];
+        const DETECTION_CONFIRMATION_TIME = 500; // ms - need to detect same note for this long
+        const DETECTION_COOLDOWN_TIME = 800; // ms - prevent re-detection too quickly
+        let lastDetectionTime = 0;
+        let isInCooldown = false;
+
+        // Note timeout variables
+        let noteTimeout = 5;             // 每个音符的超时时间 (秒)
+        let noteStartTime = 0;           // 当前音符开始时间
+        let noteTimeoutInterval = null;  // 超时计时器
+        // Initialize
+        function init() {
+            loadSettings();
+            createNoteCheckboxes();
+            loadAudioDevices();
+        }
+
+        function createNoteCheckboxes() {
+            const grid = document.getElementById('notesGrid');
+            NOTES.forEach(note => {
+                const div = document.createElement('div');
+                div.className = 'note-checkbox';
+                const isChecked = selectedNotes.includes(note);
+                if (isChecked) {
+                    div.classList.add('checked');
+                }
+                div.innerHTML = `
+                    <input type="checkbox" id="note-${note}" ${isChecked ? 'checked' : ''}>
+                    <label>${note}</label>
+                `;
+                div.onclick = function() {
+                    toggleNote(note);
+                };
+                grid.appendChild(div);
+            });
+        }
+
+        function toggleNote(note) {
+            const checkbox = document.getElementById(`note-${note}`);
+            const div = checkbox.parentElement;
+            checkbox.checked = !checkbox.checked;
+            if (checkbox.checked) {
+                div.classList.add('checked');
+            } else {
+                div.classList.remove('checked');
+            }
+            updateSelectedNotes();
+            saveSettings();
+        }
+
+        function updateSelectedNotes() {
+            selectedNotes = NOTES.filter(note => 
+                document.getElementById(`note-${note}`).checked
+            );
+        }
+
+        function selectAllNotes() {
+            NOTES.forEach(note => {
+                const checkbox = document.getElementById(`note-${note}`);
+                checkbox.checked = true;
+                checkbox.parentElement.classList.add('checked');
+            });
+            updateSelectedNotes();
+            saveSettings();
+        }
+
+        function deselectAllNotes() {
+            NOTES.forEach(note => {
+                const checkbox = document.getElementById(`note-${note}`);
+                checkbox.checked = false;
+                checkbox.parentElement.classList.remove('checked');
+            });
+            updateSelectedNotes();
+            saveSettings();
+        }
+        function saveSettings() {
+            const settings = {
+                selectedNotes: selectedNotes,
+                duration: document.getElementById('durationInput').value,
+                noteTimeout: document.getElementById('noteTimeoutInput').value
+            };
+            localStorage.setItem('guitarTrainerSettings', JSON.stringify(settings));
+        }
+
+        function loadSettings() {
+            const saved = localStorage.getItem('guitarTrainerSettings');
+            if (saved) {
+                try {
+                    const settings = JSON.parse(saved);
+                    if (settings.selectedNotes && settings.selectedNotes.length > 0) {
+                        selectedNotes = settings.selectedNotes;
+                    }
+                    if (settings.duration) {
+                        document.getElementById('durationInput').value = settings.duration;
+                    }
+                    if (settings.noteTimeout) {
+                        document.getElementById('noteTimeoutInput').value = settings.noteTimeout;
+                    }
+                } catch (e) {
+                    console.error('Failed to load settings:', e);
+                }
+            }
+        }
+
+        async function loadAudioDevices() {
+            const select = document.getElementById('audioDeviceSelect');
+            try {
+                console.log('Requesting microphone permission...');
+                // 首先请求麦克风权限，这样才能获取设备名称
+                const tempStream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: true,
+                    video: false
+                });
+                console.log('Permission granted, stream:', tempStream);
+                
+                // 停止临时流
+                tempStream.getTracks().forEach(track => {
+                    console.log('Stopping track:', track.label);
+                    track.stop();
+                });
+                
+                // 等待一下让权限完全生效
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                // 现在再次枚举设备，就能看到名称了
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                console.log('All devices:', devices);
+                
+                const audioInputs = devices.filter(device => device.kind === 'audioinput');
+                console.log('Audio input devices:', audioInputs);
+                
+                select.innerHTML = '';
+                
+                if (audioInputs.length === 0) {
+                    select.innerHTML = '<option value="">未找到音频输入设备</option>';
+                    showError('未找到音频输入设备');
+                    return;
+                }
+                
+                // 过滤掉空deviceId的设备
+                const validDevices = audioInputs.filter(d => d.deviceId);
+                
+                if (validDevices.length === 0) {
+                    select.innerHTML = '<option value="">无可用设备（权限可能被拒绝）</option>';
+                    showError('无法访问音频设备，请检查浏览器权限设置');
+                    return;
+                }
+                
+                validDevices.forEach((device, index) => {
+                    const option = document.createElement('option');
+                    option.value = device.deviceId;
+                    const label = device.label || `设备 ${index + 1}`;
+                    option.textContent = label;
+                    
+                    // 标记默认设备
+                    if (device.deviceId === 'default' || index === 0) {
+                        option.textContent = '✅ ' + label + (device.deviceId === 'default' ? ' (系统默认)' : ' (推荐)');
+                        option.selected = true;
+                    }
+                    
+                    select.appendChild(option);
+                });
+                
+                console.log('Device list populated with', validDevices.length, 'devices');
+                
+            } catch (error) {
+                console.error('Failed to load audio devices:', error);
+                select.innerHTML = '<option value="">无法加载设备 - ' + error.message + '</option>';
+                showError('无法访问麦克风：' + error.message + '\n\n请在浏览器设置中允许麦克风权限');
+            }
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = message;
+            errorEl.classList.add('show');
+            setTimeout(() => errorEl.classList.remove('show'), 5000);
+        }
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        async function startTraining() {
+            updateSelectedNotes();
+            saveSettings();
+            
+            if (selectedNotes.length === 0) {
+                showError('请至少选择一个音符！');
+                return;
+            }
+
+            const duration = parseInt(document.getElementById('durationInput').value);
+            if (duration < 1 || duration > 60) {
+                showError('训练时长必须在1-60分钟之间！');
+            }
+
+            const timeout = parseInt(document.getElementById('noteTimeoutInput').value);
+            if (timeout < 1 || timeout > 30) {
+                showError('超时时间必须在1-30秒之间！');
+                return;
+            }
+
+            trainingDuration = duration * 60;
+            remainingTime = trainingDuration;
+            noteTimeout = timeout;  // 设置超时时间
+            correctCount = 0;
+            totalAttempts = 0;
+            startTime = Date.now();
+            isPaused = false;
+            
+            // Reset detection state
+            detectionHistory = [];
+            isInCooldown = false;
+            lastDetectionTime = 0;
+
+            try {
+                await initAudio();
+                showScreen('trainingScreen');
+                nextNote();
+                startTimer();
+            } catch (error) {
+                showError('无法访问麦克风：' + error.message);
+            }
+        }
+
+        async function initAudio() {
+            console.log('initAudio: Starting...');
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                console.log('initAudio: AudioContext created', audioContext.state);
+                
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                analyser.smoothingTimeConstant = 0.8;
+                console.log('initAudio: Analyser created');
+
+                const selectedDeviceId = document.getElementById('audioDeviceSelect').value;
+                const constraints = { 
+                    audio: {
+                        deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                console.log('initAudio: Microphone stream obtained', stream.getAudioTracks());
+                
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.connect(analyser);
+                console.log('initAudio: Microphone connected to analyser');
+                
+                // Initialize canvas
+                waveformCanvas = document.getElementById('waveformCanvas');
+                waveformCtx = waveformCanvas.getContext('2d');
+                console.log('initAudio: Canvas initialized', waveformCanvas.width, 'x', waveformCanvas.height);
+                
+                // Start processing loop
+                processAudio();
+                console.log('initAudio: Processing loop started');
+            } catch (error) {
+                console.error('initAudio: Error', error);
+                throw error;
+            }
+        }
+
+        function processAudio() {
+            if (!audioContext || audioContext.state === 'closed') {
+                console.log('processAudio: audioContext not ready');
+                return;
+            }
+            
+            animationFrame = requestAnimationFrame(processAudio);
+            
+            if (isPaused) return;
+
+            const bufferLength = analyser.fftSize;
+            const buffer = new Float32Array(bufferLength);
+            analyser.getFloatTimeDomainData(buffer);
+            
+            // Draw waveform
+            try {
+                drawWaveform(buffer);
+            } catch (error) {
+                console.error('processAudio: drawWaveform error', error);
+            }
+
+            // Calculate volume
+            const volume = Math.sqrt(buffer.reduce((sum, val) => sum + val * val, 0) / buffer.length);
+            
+            // Detect pitch
+            const frequency = autoCorrelate(buffer, audioContext.sampleRate);
+            
+            if (frequency > 0 && volume > 0.003) {
+                const note = frequencyToNote(frequency);
+                updateFrequencyDisplay(frequency, note, volume);
+                updateDetectedNote(note, frequency);
+                checkNote(note);
+            } else {
+                updateFrequencyDisplay(-1, '', volume);
+            }
+        }
+
+        function drawWaveform(buffer) {
+            if (!waveformCanvas || !waveformCtx) {
+                console.error('drawWaveform: canvas not initialized');
+                return;
+            }
+            const canvas = waveformCanvas;
+            const ctx = waveformCtx;
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // Clear canvas
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Draw center line
+            ctx.strokeStyle = '#e0e0e0';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.stroke();
+            
+            // Draw waveform
+            ctx.strokeStyle = '#2a5298';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            const sliceWidth = width / buffer.length;
+            let x = 0;
+            
+            for (let i = 0; i < buffer.length; i++) {
+                const v = buffer[i];
+                const y = (v + 1) * height / 2;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+                x += sliceWidth;
+            }
+            
+            ctx.stroke();
+            
+            // 添加调试信息 - 显示波形统计
+            const rms = Math.sqrt(buffer.reduce((sum, val) => sum + val * val, 0) / buffer.length);
+            const peak = Math.max(...Array.from(buffer).map(Math.abs));
+            ctx.fillStyle = '#666';
+            ctx.font = '12px monospace';
+            ctx.fillText(`RMS: ${(rms * 100).toFixed(2)}% | Peak: ${(peak * 100).toFixed(2)}%`, 10, 20);
+        }
+
+        function updateFrequencyDisplay(frequency, note, volume) {
+            const display = document.getElementById('frequencyDisplay');
+            if (frequency > 0) {
+                display.textContent = `频率: ${frequency.toFixed(2)} Hz | 音符: ${note} | 音量: ${(volume * 100).toFixed(1)}%`;
+                display.style.color = '#2a5298';
+            } else if (volume > 0.005) {
+                display.textContent = `音量: ${(volume * 100).toFixed(1)}% | 音量太小或频率不明确`;
+                display.style.color = '#999';
+            } else {
+                display.textContent = '等待音频输入...';
+                display.style.color = '#999';
+            }
+        }
+
+        /**
+         * YIN Algorithm for pitch detection
+         * Based on: "YIN, a fundamental frequency estimator for speech and music"
+         * by Alain de Cheveigné and Hideki Kawahara (2002)
+         * 
+         * This is the industry standard used by GuitarTuna and similar apps.
+         * Much better than autocorrelation for musical instruments.
+         */
+        function yinPitchDetection(buffer, sampleRate) {
+            const threshold = 0.15;  // Standard YIN threshold
+            const bufferSize = buffer.length;
+            const halfBufferSize = Math.floor(bufferSize / 2);
+            
+            // Step 1: Calculate the difference function
+            const yinBuffer = new Float32Array(halfBufferSize);
+            yinBuffer[0] = 1;  // First value is always 1 (will be set in step 2)
+            
+            // Calculate squared difference
+            for (let tau = 1; tau < halfBufferSize; tau++) {
+                let sum = 0;
+                for (let i = 0; i < halfBufferSize; i++) {
+                    const delta = buffer[i] - buffer[i + tau];
+                    sum += delta * delta;
+                }
+                yinBuffer[tau] = sum;
+            }
+            
+            // Step 2: Cumulative mean normalized difference
+            yinBuffer[0] = 1;
+            let runningSum = 0;
+            
+            for (let tau = 1; tau < halfBufferSize; tau++) {
+                runningSum += yinBuffer[tau];
+                if (runningSum === 0) {
+                    yinBuffer[tau] = 1;
+                } else {
+                    yinBuffer[tau] *= tau / runningSum;
+                }
+            }
+            
+            // Step 3: Absolute threshold
+            // Find the first valley below threshold in guitar frequency range
+            const MIN_FREQ = 75;   // Below E2
+            const MAX_FREQ = 1400; // Above E6
+            
+            const minTau = Math.max(Math.floor(sampleRate / MAX_FREQ), 2);
+            const maxTau = Math.min(Math.floor(sampleRate / MIN_FREQ), halfBufferSize - 1);
+            
+            let tau = minTau;
+            
+            // Search for first point below threshold
+            while (tau < maxTau) {
+                if (yinBuffer[tau] < threshold) {
+                    // Found a dip below threshold
+                    // Now find the local minimum (valley)
+                    while (tau + 1 < maxTau && yinBuffer[tau + 1] < yinBuffer[tau]) {
+                        tau++;
+                    }
+                    
+                    // Found the valley, now do parabolic interpolation
+                    let betterTau = tau;
+                    
+                    if (tau > 0 && tau < halfBufferSize - 1) {
+                        const s0 = yinBuffer[tau - 1];
+                        const s1 = yinBuffer[tau];
+                        const s2 = yinBuffer[tau + 1];
+                        
+                        // Parabolic interpolation to get sub-sample precision
+                        const adjustment = (s2 - s0) / (2 * (2 * s1 - s2 - s0));
+                        if (!isNaN(adjustment) && isFinite(adjustment)) {
+                            betterTau = tau + adjustment;
+                        }
+                    }
+                    
+                    const frequency = sampleRate / betterTau;
+                    
+                    // Validate frequency is in guitar range
+                    if (frequency >= MIN_FREQ && frequency <= MAX_FREQ) {
+                        return frequency;
+                    }
+                }
+                tau++;
+            }
+            
+            // No good pitch found
+            return -1;
+        }
+
+        // Main pitch detection function
+        function autoCorrelate(buffer, sampleRate) {
+            // Calculate RMS for noise gate
+            let rms = 0;
+            for (let i = 0; i < buffer.length; i++) {
+                rms += buffer[i] * buffer[i];
+            }
+            rms = Math.sqrt(rms / buffer.length);
+            
+            // Noise gate - ignore very quiet sounds
+            if (rms < 0.003) return -1;
+            
+            // Use YIN algorithm for pitch detection
+            return yinPitchDetection(buffer, sampleRate);
+        }
+
+        function frequencyToNote(frequency) {
+            const noteNum = 12 * (Math.log(frequency / 440) / Math.log(2));
+            const roundedNoteNum = Math.round(noteNum);
+            const noteIndex = (roundedNoteNum + 9 + 120) % 12; // +9 because A is index 9
+            return NOTES[noteIndex];
+        }
+
+        function getCentsOff(frequency, targetNote) {
+            const targetFreq = NOTE_FREQUENCIES[targetNote];
+            let closestFreq = targetFreq;
+            
+            // Check different octaves
+            for (let octave = 0.25; octave <= 4; octave *= 2) {
+                const freq = targetFreq * octave;
+                if (Math.abs(frequency - freq) < Math.abs(frequency - closestFreq)) {
+                    closestFreq = freq;
+                }
+            }
+            
+            return 1200 * Math.log2(frequency / closestFreq);
+        }
+
+
+        function updateDetectedNote(note, frequency) {
+            const detectedEl = document.getElementById('detectedNote');
+            const centsOff = getCentsOff(frequency, currentNote);
+            
+            if (note === currentNote && Math.abs(centsOff) < 50) {
+                const centsText = centsOff > 0 ? `+${centsOff.toFixed(0)}` : centsOff.toFixed(0);
+                detectedEl.textContent = `♪ ${note} (${centsText} 音分)`;
+                detectedEl.className = 'detected-note correct';
+            } else if (Math.abs(centsOff) < 100) {
+                detectedEl.textContent = `♪ ${note} (接近 ${currentNote})`;
+                detectedEl.className = 'detected-note close';
+            } else {
+                detectedEl.textContent = `♪ ${note}`;
+                detectedEl.className = 'detected-note';
+            }
+        }
+
+        function checkNote(detectedNote) {
+            const now = Date.now();
+            
+            // Check if we're in cooldown period after last successful detection
+            if (isInCooldown) {
+                return;
+            }
+            
+            // Add to detection history with timestamp
+            detectionHistory.push({
+                note: detectedNote,
+                timestamp: now
+            });
+            
+            // Remove old detections outside the confirmation window
+            detectionHistory = detectionHistory.filter(d => 
+                now - d.timestamp < DETECTION_CONFIRMATION_TIME
+            );
+            
+            // Check if we have consistent detections of the correct note
+            const correctDetections = detectionHistory.filter(d => d.note === currentNote);
+            
+            // Need at least 5 consistent detections within the time window
+            if (correctDetections.length >= 5) {
+                // Success! Note confirmed
+                
+                // 清除超时计时器
+                if (noteTimeoutInterval) {
+                    clearInterval(noteTimeoutInterval);
+                    noteTimeoutInterval = null;
+                }
+                
+                correctCount++;
+                totalAttempts++;
+                
+                // Enter cooldown to prevent immediate re-detection
+                isInCooldown = true;
+                lastDetectionTime = now;
+                detectionHistory = []; // Clear history
+                
+                document.querySelector('.container').classList.add('flash-correct');
+                setTimeout(() => {
+                    document.querySelector('.container').classList.remove('flash-correct');
+                }, 500);
+                
+                setTimeout(() => {
+                    isInCooldown = false; // Exit cooldown before next note
+                    nextNote();
+                }, DETECTION_COOLDOWN_TIME);
+            }
+        }
+
+
+        /**
+         * 启动音符超时计时
+         */
+        function startNoteTimeout() {
+            // 清除之前的计时器
+            if (noteTimeoutInterval) {
+                clearInterval(noteTimeoutInterval);
+            }
+            
+            // 重置进度条
+            const progressBar = document.getElementById('timeoutProgress');
+            if (progressBar) {
+                progressBar.style.width = '100%';
+                progressBar.classList.remove('warning', 'danger');
+            }
+            
+            // 记录开始时间
+            noteStartTime = Date.now();
+            
+            // 每 100ms 更新一次进度
+            noteTimeoutInterval = setInterval(() => {
+                if (isPaused) return;
+                
+                const elapsed = (Date.now() - noteStartTime) / 1000;
+                const remaining = noteTimeout - elapsed;
+                
+                if (remaining <= 0) {
+                    handleNoteTimeout();
+                } else {
+                    const progress = (remaining / noteTimeout) * 100;
+                    updateNoteProgress(progress);
+                }
+            }, 100);
+        }
+        
+        /**
+         * 更新超时进度条
+         */
+        function updateNoteProgress(progress) {
+            const progressBar = document.getElementById('timeoutProgress');
+            if (!progressBar) return;
+            
+            progressBar.style.width = progress + '%';
+            
+            // 根据剩余时间改变颜色
+            progressBar.classList.remove('warning', 'danger');
+            if (progress < 30) {
+                progressBar.classList.add('danger');
+            } else if (progress < 60) {
+                progressBar.classList.add('warning');
+            }
+        }
+        
+        /**
+         * 处理音符超时
+         */
+        function handleNoteTimeout() {
+            // 清除计时器
+            if (noteTimeoutInterval) {
+                clearInterval(noteTimeoutInterval);
+                noteTimeoutInterval = null;
+            }
+            
+            // 增加尝试次数
+            totalAttempts++;
+            
+            // 显示超时消息
+            const detectedEl = document.getElementById('detectedNote');
+            detectedEl.textContent = '超时！';
+            detectedEl.style.color = '#F44336';
+            
+            // 等待一下然后切换到下一个音符
+            setTimeout(() => {
+                nextNote();
+            }, 500);
+        }
+        function nextNote() {
+            let newNote;
+            do {
+                newNote = selectedNotes[Math.floor(Math.random() * selectedNotes.length)];
+            } while (newNote === lastNote && selectedNotes.length > 1);
+            
+            lastNote = newNote;
+            currentNote = newNote;
+            
+            // Reset detection state for new note
+            detectionHistory = [];
+            isInCooldown = false;
+            
+            document.getElementById('targetNote').textContent = newNote;
+            document.getElementById('detectedNote').textContent = '等待检测...';
+            document.getElementById('detectedNote').className = 'detected-note';
+            updateProgress();
+            
+            // 启动超时计时
+            noteStartTime = Date.now();
+            startNoteTimeout();
+        }
+
+        function updateProgress() {
+            document.getElementById('progressDisplay').textContent = 
+                `${correctCount} 个音符`;
+        }
+
+        function startTimer() {
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    remainingTime--;
+                    updateTimerDisplay();
+                    
+                    if (remainingTime <= 0) {
+                        endTraining();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function pauseTraining() {
+            isPaused = !isPaused;
+            const btn = document.querySelector('.btn-pause');
+            btn.textContent = isPaused ? '继续' : '暂停';
+        }
+
+        function stopTraining() {
+            if (confirm('确定要结束训练吗？')) {
+                endTraining();
+            }
+        }
+
+        function endTraining() {
+            clearInterval(timerInterval);
+            
+            // 清理超时计时器
+            if (noteTimeoutInterval) {
+                clearInterval(noteTimeoutInterval);
+                noteTimeoutInterval = null;
+            }
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+            endTime = Date.now();
+            
+            if (microphone && microphone.mediaStream) {
+                microphone.mediaStream.getTracks().forEach(track => track.stop());
+            }
+            if (audioContext) {
+                audioContext.close();
+            }
+
+            showResults();
+        }
+
+        function showResults() {
+            const actualTime = Math.floor((endTime - startTime) / 1000);
+            const minutes = Math.floor(actualTime / 60);
+            const seconds = actualTime % 60;
+
+            document.getElementById('totalNotes').textContent = correctCount;
+            document.getElementById('accuracy').textContent = 
+                totalAttempts > 0 ? Math.round((correctCount / totalAttempts) * 100) + '%' : 'N/A';
+            document.getElementById('timeTaken').textContent = 
+                `${minutes}:${String(seconds).padStart(2, '0')}`;
+
+            showScreen('resultsScreen');
+        }
+
+        function resetTraining() {
+            showScreen('setupScreen');
+        }
+
+
+        // ============== TUNER MODE FUNCTIONS ==============
+
+        function showTuner() {
+            console.log('showTuner: Entering tuner mode');
+            isTunerMode = true;
+            showScreen('tunerScreen');
+            
+            // Initialize tuner waveform canvas
+            tunerWaveformCanvas = document.getElementById('tunerWaveform');
+            tunerWaveformCtx = tunerWaveformCanvas.getContext('2d');
+            
+            // Reset smoothing variables
+            smoothedCents = 0;
+            smoothedFrequency = 0;
+            
+            // Start audio processing for tuner
+            initAudioForTuner();
+        }
+
+        async function initAudioForTuner() {
+            try {
+                console.log('initAudioForTuner: Starting audio for tuner');
+                const selectedDeviceId = document.getElementById('audioDeviceSelect').value;
+                const constraints = {
+                    audio: {
+                        deviceId: selectedDeviceId ? { exact: selectedDeviceId } : undefined,
+                        echoCancellation: false,
+                        noiseSuppression: false,
+                        autoGainControl: false
+                    }
+                };
+
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 2048;
+                analyser.smoothingTimeConstant = 0.8;
+                
+                microphone = audioContext.createMediaStreamSource(stream);
+                microphone.mediaStream = stream;
+                microphone.connect(analyser);
+                
+                console.log('initAudioForTuner: Audio initialized, starting processing');
+                processTunerAudio();
+            } catch (error) {
+                console.error('initAudioForTuner: Error', error);
+                alert('无法访问麦克风: ' + error.message);
+            }
+        }
+
+        function processTunerAudio() {
+            if (!audioContext || audioContext.state === 'closed') {
+                console.log('processTunerAudio: audioContext not ready');
+                return;
+            }
+            
+            animationFrame = requestAnimationFrame(processTunerAudio);
+            
+            if (!isTunerMode) return;
+
+            const bufferLength = analyser.fftSize;
+            const buffer = new Float32Array(bufferLength);
+            analyser.getFloatTimeDomainData(buffer);
+            
+            // Draw waveform for tuner
+            drawTunerWaveform(buffer);
+
+            // Calculate volume
+            const volume = Math.sqrt(buffer.reduce((sum, val) => sum + val * val, 0) / buffer.length);
+            
+            // Detect pitch
+            const frequency = autoCorrelate(buffer, audioContext.sampleRate);
+            
+            if (frequency > 0 && volume > 0.003) {
+                updateTunerDisplay(frequency, volume);
+            } else {
+                // No clear pitch detected
+                document.getElementById('tunerFrequency').textContent = '-- Hz';
+                document.getElementById('tunerNote').textContent = '--';
+                document.getElementById('tunerCents').textContent = '0';
+                document.getElementById('tunerCents').className = 'cents-deviation';
+                document.getElementById('tuningStatus').textContent = '等待音频输入...';
+                document.getElementById('tuningStatus').style.color = '#999';
+            }
+        }
+
+        function drawTunerWaveform(buffer) {
+            if (!tunerWaveformCanvas || !tunerWaveformCtx) return;
+            
+            const width = tunerWaveformCanvas.width;
+            const height = tunerWaveformCanvas.height;
+            const ctx = tunerWaveformCtx;
+            
+            ctx.fillStyle = '#f5f5f5';
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#2a5298';
+            ctx.beginPath();
+            
+            const sliceWidth = width / buffer.length;
+            let x = 0;
+            
+            for (let i = 0; i < buffer.length; i++) {
+                const v = buffer[i];
+                const y = (v + 1) * height / 2;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+                x += sliceWidth;
+            }
+            
+            ctx.stroke();
+            
+            // Draw center line
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, height / 2);
+            ctx.lineTo(width, height / 2);
+            ctx.stroke();
+        }
+
+        function updateTunerDisplay(frequency, volume) {
+            // Find closest note
+            const noteInfo = frequencyToNoteDetailed(frequency);
+            
+            // Apply smoothing to frequency and cents using exponential moving average
+            if (smoothedFrequency === 0) {
+                // Initialize on first detection
+                smoothedFrequency = frequency;
+                smoothedCents = noteInfo.cents;
+            } else {
+                // Smooth the values (low-pass filter)
+                smoothedFrequency = smoothedFrequency * (1 - TUNER_SMOOTHING_FACTOR) + frequency * TUNER_SMOOTHING_FACTOR;
+                smoothedCents = smoothedCents * (1 - TUNER_SMOOTHING_FACTOR) + noteInfo.cents * TUNER_SMOOTHING_FACTOR;
+            }
+            
+            document.getElementById('tunerFrequency').textContent = smoothedFrequency.toFixed(2) + ' Hz';
+            document.getElementById('tunerNote').textContent = noteInfo.note;
+            
+            const centsElement = document.getElementById('tunerCents');
+            const statusElement = document.getElementById('tuningStatus');
+            const needleElement = document.getElementById('tunerNeedle');
+            
+            // Format cents display using smoothed value
+            const centsText = smoothedCents > 0 ? '+' + smoothedCents.toFixed(0) : smoothedCents.toFixed(0);
+            centsElement.textContent = centsText;
+            
+            // Color code based on tuning accuracy
+            if (Math.abs(smoothedCents) <= 5) {
+                centsElement.className = 'cents-deviation in-tune';
+                statusElement.textContent = '✓ 已调准';
+                statusElement.style.color = '#4CAF50';
+            } else if (Math.abs(smoothedCents) <= 15) {
+                centsElement.className = smoothedCents < 0 ? 'cents-deviation flat' : 'cents-deviation sharp';
+                statusElement.textContent = smoothedCents < 0 ? '↓ 偏低' : '↑ 偏高';
+                statusElement.style.color = '#ff9800';
+            } else {
+                centsElement.className = smoothedCents < 0 ? 'cents-deviation flat' : 'cents-deviation sharp';
+                statusElement.textContent = smoothedCents < 0 ? '↓↓ 太低' : '↑↑ 太高';
+                statusElement.style.color = '#f44336';
+            }
+            
+            // Move needle using smoothed cents (map -50 to +50 cents to 0% to 100% position)
+            const needlePosition = 50 + (smoothedCents / 50) * 50;
+            const clampedPosition = Math.max(0, Math.min(100, needlePosition));
+            needleElement.style.left = clampedPosition + '%';
+        }
+
+        function frequencyToNoteDetailed(frequency) {
+            // Calculate note from frequency
+            const A4 = 440;
+            const C0 = A4 * Math.pow(2, -4.75); // C0 = 16.35 Hz
+            
+            // Calculate how many semitones away from C0
+            const halfStepsFromC0 = 12 * Math.log2(frequency / C0);
+            const roundedHalfSteps = Math.round(halfStepsFromC0);
+            
+            // Calculate cents deviation from the nearest note
+            const cents = (halfStepsFromC0 - roundedHalfSteps) * 100;
+            
+            // Get note name and octave
+            const noteIndex = roundedHalfSteps % 12;
+            const octave = Math.floor(roundedHalfSteps / 12);
+            const noteName = NOTES[noteIndex];
+            
+            return {
+                note: noteName + octave,
+                noteName: noteName,
+                octave: octave,
+                cents: cents,
+                frequency: frequency
+            };
+        }
+
+        function selectString(stringIndex) {
+            // Update UI
+            document.querySelectorAll('.string-btn').forEach((btn, idx) => {
+                if (idx === stringIndex) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            selectedString = stringIndex;
+            const targetString = GUITAR_STRINGS[stringIndex];
+            console.log('Selected string:', targetString.name, targetString.frequency + ' Hz');
+        }
+
+        function backToSetup() {
+            console.log('backToSetup: Leaving tuner mode');
+            isTunerMode = false;
+            
+            // Stop audio
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+            if (microphone && microphone.mediaStream) {
+                microphone.mediaStream.getTracks().forEach(track => track.stop());
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            
+            showScreen('setupScreen');
+        }
+
+        function startTrainingFromTuner() {
+            console.log('startTrainingFromTuner: Going from tuner to training');
+            isTunerMode = false;
+            
+            // Stop tuner audio
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+            }
+            if (microphone && microphone.mediaStream) {
+                microphone.mediaStream.getTracks().forEach(track => track.stop());
+            }
+            if (audioContext) {
+                audioContext.close();
+                audioContext = null;
+            }
+            
+            // Start training
+            startTraining();
+        }
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>

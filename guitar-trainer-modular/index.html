@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>吉他指板音符训练器</title>
+    
+    <!-- 样式表 -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/screens.css">
+    <link rel="stylesheet" href="css/tuner.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎸 吉他指板音符训练器</h1>
+        
+        <div class="error-message" id="errorMessage"></div>
+
+        <!-- 设置屏幕 -->
+        <div class="screen active" id="setupScreen">
+            <div class="setup-section">
+                <h2>选择要训练的音符</h2>
+                <div class="quick-actions">
+                    <button id="selectAllBtn">全选</button>
+                    <button id="deselectAllBtn">全不选</button>
+                </div>
+                <div class="notes-grid" id="notesGrid"></div>
+            </div>
+
+            <div class="setup-section">
+                <h2>训练时长</h2>
+                <div class="timer-input">
+                    <input type="number" id="durationInput" value="5" min="1" max="60">
+                    <span>分钟</span>
+                </div>
+            </div>
+
+            <div class="setup-section">
+                <h2>每个音符超时时间</h2>
+                <div class="timer-input">
+                    <input type="number" id="noteTimeoutInput" value="5" min="1" max="30">
+                    <span>秒</span>
+                </div>
+                <p style="margin-top: 5px; color: #666; font-size: 0.9em;">超过这个时间未弹对将自动跳过</p>
+            </div>
+
+            <div class="setup-section">
+                <h2>音频输入设备</h2>
+                <select id="audioDeviceSelect" style="width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 1em;">
+                    <option value="">加载中...</option>
+                </select>
+                <p style="margin-top: 10px; color: #666; font-size: 0.9em;">⚠️ 请选择真实麦克风或音频接口，不要选择虚拟音频设备（如BlackHole）</p>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-secondary" id="showTunerBtn" style="flex: 1;">🎸 调音器</button>
+                <button class="btn-primary" id="startTrainingBtn" style="flex: 2;">开始训练</button>
+            </div>
+        </div>
+
+        <!-- 调音器屏幕 -->
+        <div class="screen" id="tunerScreen">
+            <div class="tuner-header">
+                <h2>吉他调音器</h2>
+                <p class="tuner-instruction">请弹奏一根弦，调音器会自动检测</p>
+            </div>
+
+            <div class="string-selector">
+                <button class="string-btn" data-string="0">E2<br><span>82.41 Hz</span></button>
+                <button class="string-btn" data-string="1">A2<br><span>110.00 Hz</span></button>
+                <button class="string-btn" data-string="2">D3<br><span>146.83 Hz</span></button>
+                <button class="string-btn" data-string="3">G3<br><span>196.00 Hz</span></button>
+                <button class="string-btn" data-string="4">B3<br><span>246.94 Hz</span></button>
+                <button class="string-btn" data-string="5">E4<br><span>329.63 Hz</span></button>
+            </div>
+
+            <div class="tuner-display">
+                <div class="current-frequency" id="tunerFrequency">-- Hz</div>
+                <div class="current-note" id="tunerNote">--</div>
+                <div class="cents-deviation" id="tunerCents">0</div>
+            </div>
+
+            <div class="tuning-indicator">
+                <div class="indicator-scale">
+                    <div class="scale-mark" style="left: 0%">-50</div>
+                    <div class="scale-mark" style="left: 25%">-25</div>
+                    <div class="scale-mark center" style="left: 50%">0</div>
+                    <div class="scale-mark" style="left: 75%">+25</div>
+                    <div class="scale-mark" style="right: 0%">+50</div>
+                </div>
+                <div class="indicator-needle" id="tunerNeedle"></div>
+                <div class="tuning-status" id="tuningStatus">准备调音</div>
+            </div>
+
+            <canvas id="tunerWaveform" class="waveform-canvas" width="800" height="100"></canvas>
+
+            <div class="tuner-controls">
+                <button class="btn-secondary" id="backToSetupBtn">返回设置</button>
+                <button class="btn-primary" id="startFromTunerBtn">开始训练</button>
+            </div>
+        </div>
+
+        <!-- 训练屏幕 -->
+        <div class="screen" id="trainingScreen">
+            <div class="training-header">
+                <div class="timer-display" id="timerDisplay">05:00</div>
+                <div class="progress" id="progressDisplay">0 / 0</div>
+            </div>
+
+            <div class="note-display">
+                <div class="target-note" id="targetNote">A</div>
+                <div class="detected-note" id="detectedNote">等待检测...</div>
+                <!-- 超时进度条 -->
+                <div class="note-timeout-bar" id="noteTimeoutBar">
+                    <div class="timeout-progress" id="timeoutProgress"></div>
+                </div>
+            </div>
+
+            <div class="mic-indicator">
+                <canvas id="waveformCanvas" class="waveform-canvas" width="800" height="150"></canvas>
+                <div class="frequency-display" id="frequencyDisplay">等待音频输入...</div>
+            </div>
+
+            <div class="training-controls">
+                <button class="btn-pause" id="pauseBtn">暂停</button>
+                <button class="btn-stop" id="stopBtn">结束训练</button>
+            </div>
+        </div>
+
+        <!-- 结果屏幕 -->
+        <div class="screen" id="resultsScreen">
+            <div class="results">
+                <h2>🎉 训练完成！</h2>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalNotes">0</div>
+                        <div class="stat-label">完成音符数</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="accuracy">0%</div>
+                        <div class="stat-label">准确率</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="timeTaken">0:00</div>
+                        <div class="stat-label">用时</div>
+                    </div>
+                </div>
+                <button class="btn-primary" id="trainAgainBtn">再来一次</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript模块 -->
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>

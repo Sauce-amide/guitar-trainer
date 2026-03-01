@@ -1,0 +1,211 @@
+/**
+ * tuner.css - 吉他调音器专用样式
+ * 
+ * 包含:
+ * - 琴弦选择器按钮
+ * - 调音显示 (当前频率、音符、音分偏差)
+ * - 调音指示器 (彩色渐变条 + 指针)
+ * - 调音状态文字
+ */
+
+/* ==================== 调音器头部 ==================== */
+.tuner-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.tuner-header h2 {
+    color: #1e3c72;
+    margin-bottom: 10px;
+}
+
+.tuner-instruction {
+    color: #666;
+    font-size: 0.95em;
+}
+
+/* ==================== 琴弦选择器 ==================== */
+/* 6个按钮代表吉他的6根弦 (E2, A2, D3, G3, B3, E4) */
+.string-selector {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.string-btn {
+    padding: 15px 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #1e3c72;
+    transition: all 0.2s;
+    text-align: center;
+    line-height: 1.4;
+}
+
+/* 琴弦按钮的副标题 (显示音符名称) */
+.string-btn span {
+    display: block;
+    font-size: 0.7em;
+    font-weight: normal;
+    color: #999;
+    margin-top: 5px;
+}
+
+.string-btn:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+/* 选中的琴弦按钮 - 紫色渐变 */
+.string-btn.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: #667eea;
+}
+
+.string-btn.active span {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ==================== 调音显示区域 ==================== */
+.tuner-display {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* 当前检测到的频率 */
+.current-frequency {
+    font-size: 1.2em;
+    color: #666;
+    margin-bottom: 10px;
+    font-family: monospace;
+}
+
+/* 当前检测到的音符名称 */
+.current-note {
+    font-size: 4em;
+    font-weight: bold;
+    color: #1e3c72;
+    margin: 20px 0;
+}
+
+/* 音分偏差 - 显示与目标音高的偏差 (cents) */
+.cents-deviation {
+    font-size: 2em;
+    font-weight: bold;
+    font-family: monospace;
+    margin: 10px 0;
+}
+
+.cents-deviation.flat {
+    color: #f44336; /* 偏低 - 红色 */
+}
+
+.cents-deviation.sharp {
+    color: #ff9800; /* 偏高 - 橙色 */
+}
+
+.cents-deviation.in-tune {
+    color: #4CAF50; /* 准确 - 绿色 */
+}
+
+/* ==================== 调音指示器 ==================== */
+/**
+ * 调音指示器由三部分组成:
+ * 1. 彩色渐变条: 红色(偏低) → 橙色 → 绿色(准确) → 橙色 → 红色(偏高)
+ * 2. 指针: 黑色箭头指示当前音高位置
+ * 3. 刻度标记: -50, 0, +50 音分标记
+ */
+.tuning-indicator {
+    position: relative;
+    height: 80px;
+    /* 渐变条: 中间绿色(准确)，两边红色(失准) */
+    background: linear-gradient(to right, 
+        #f44336 0%,   /* 左边红色: 偏低很多 */
+        #ff9800 40%,  /* 橙色: 偏低一点 */
+        #4CAF50 50%,  /* 中间绿色: 准确 */
+        #ff9800 60%,  /* 橙色: 偏高一点 */
+        #f44336 100%  /* 右边红色: 偏高很多 */
+    );
+    border-radius: 10px;
+    margin-bottom: 30px;
+    overflow: visible; /* 允许指针超出边界 */
+}
+
+/* 刻度容器 */
+.indicator-scale {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+}
+
+/* 刻度标记 (-50, 0, +50) */
+.scale-mark {
+    position: absolute;
+    color: white;
+    font-size: 0.85em;
+    font-weight: bold;
+    transform: translateX(-50%);
+}
+
+.scale-mark.center {
+    font-size: 1.1em; /* 中心标记(0)稍大 */
+}
+
+/* 指针 - 黑色竖线 */
+.indicator-needle {
+    position: absolute;
+    top: -10px; /* 稍微伸出顶部 */
+    left: 50%;  /* 默认居中 */
+    width: 4px;
+    height: 100px;
+    background: #333;
+    transform: translateX(-50%);
+    transition: left 0.1s ease-out; /* 平滑移动 */
+    border-radius: 2px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* 指针顶部的箭头 */
+.indicator-needle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 12px solid #333; /* 向下的三角形 */
+}
+
+/* 调音状态文字 - 显示在指示器下方 */
+.tuning-status {
+    position: absolute;
+    bottom: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 1.2em;
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+/* ==================== 调音器控制按钮 ==================== */
+.tuner-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 30px;
+}
+
+.tuner-controls button {
+    flex: 1;
+}

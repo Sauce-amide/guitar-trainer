@@ -1,0 +1,148 @@
+/**
+ * main.css - 基础样式和全局布局
+ * 
+ * 包含:
+ * - 全局重置和基础样式
+ * - 容器和布局
+ * - 通用按钮样式
+ * - 屏幕切换动画
+ * - 错误消息样式
+ */
+
+/* ==================== 全局重置 ==================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+/* ==================== 主容器 ==================== */
+.container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    padding: 40px;
+    max-width: 800px;
+    width: 100%;
+}
+
+h1 {
+    text-align: center;
+    color: #1e3c72;
+    margin-bottom: 30px;
+    font-size: 2.5em;
+}
+
+/* ==================== 屏幕管理 ==================== */
+/* 所有屏幕默认隐藏 */
+.screen {
+    display: none;
+}
+
+/* 激活的屏幕显示并带淡入动画 */
+.screen.active {
+    display: block;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==================== 通用按钮样式 ==================== */
+/* 主要按钮 - 用于开始训练等主要操作 */
+.btn-primary {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.2em;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: transform 0.2s;
+}
+
+.btn-primary:hover {
+    transform: scale(1.02);
+}
+
+.btn-primary:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* 次要按钮 - 用于返回、取消等次要操作 */
+.btn-secondary {
+    padding: 15px 30px;
+    border: 2px solid #2a5298;
+    border-radius: 10px;
+    background: white;
+    color: #2a5298;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+    background: #f0f0f0;
+    transform: translateY(-2px);
+}
+
+/* 暂停按钮 */
+.btn-pause {
+    background: #ff9800;
+    color: white;
+}
+
+/* 停止按钮 */
+.btn-stop {
+    background: #f44336;
+    color: white;
+}
+
+/* ==================== 错误消息 ==================== */
+.error-message {
+    background: #ffebee;
+    color: #c62828;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
+/* ==================== 通用动画 ==================== */
+/* 脉冲动画 - 用于成功反馈 */
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* 绿色闪烁动画 - 用于正确识别反馈 */
+@keyframes flashGreen {
+    0%, 100% { background: white; }
+    50% { background: #c8e6c9; }
+}
+
+.flash-correct {
+    animation: flashGreen 0.5s ease-out;
+}
