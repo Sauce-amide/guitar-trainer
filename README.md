@@ -19,13 +19,13 @@
 
 ## 🚀 在线使用
 
-访问：[https://你的用户名.github.io/guitar-trainer/](https://你的用户名.github.io/guitar-trainer/)
+访问：[https://sauce-amide.github.io/guitar-trainer/](https://sauce-amide.github.io/guitar-trainer/)
 
 ## 💻 本地运行
 
 1. 克隆仓库：
 ```bash
-git clone https://github.com/你的用户名/guitar-trainer.git
+git clone https://github.com/Sauce-amide/guitar-trainer.git
 cd guitar-trainer
 ```
 
