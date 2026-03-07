@@ -913,6 +913,59 @@
         let noteStartTime = 0;           // 当前音符开始时间
         let noteTimeoutInterval = null;  // 超时计时器
 
+        // ==================== Wake Lock (防止休眠) ====================
+        let wakeLock = null;  // Wake Lock 对象
+        let isWakeLockSupported = 'wakeLock' in navigator;  // 检测浏览器支持
+
+        // 请求 Wake Lock
+        async function requestWakeLock() {
+            if (!isWakeLockSupported) {
+                console.warn('Wake Lock API 不支持');
+                return false;
+            }
+
+            try {
+                wakeLock = await navigator.wakeLock.request('screen');
+                console.log('Wake Lock 已激活 - 屏幕将保持唤醒');
+
+                // 监听自动释放事件 (例如切换到其他标签页)
+                wakeLock.addEventListener('release', () => {
+                    console.log('Wake Lock 已释放');
+                });
+
+                return true;
+            } catch (err) {
+                console.error(`Wake Lock 请求失败: ${err.name} - ${err.message}`);
+                return false;
+            }
+        }
+
+        // 释放 Wake Lock
+        async function releaseWakeLock() {
+            if (wakeLock !== null) {
+                try {
+                    await wakeLock.release();
+                    wakeLock = null;
+                    console.log('Wake Lock 已手动释放');
+                } catch (err) {
+                    console.error('释放 Wake Lock 失败:', err);
+                }
+            }
+        }
+
+        // 当标签页重新可见时，重新获取 Wake Lock
+        document.addEventListener('visibilitychange', async () => {
+            // 只在训练或调音器激活时重新获取
+            const trainingScreen = document.getElementById('trainingScreen');
+            const tunerScreen = document.getElementById('tunerScreen');
+            const isTrainingActive = trainingScreen && trainingScreen.classList.contains('active');
+            const isTunerActive = tunerScreen && tunerScreen.classList.contains('active');
+
+            if ((isTrainingActive || isTunerActive) && document.visibilityState === 'visible') {
+                console.log('标签页重新可见，重新请求 Wake Lock');
+                await requestWakeLock();
+            }
+        });
         // ==================== 深色模式 ==================== 
         function initTheme() {
             const savedTheme = localStorage.getItem('theme');
@@ -1157,6 +1210,9 @@
                 showScreen('trainingScreen');
                 nextNote();
                 startTimer();
+                
+                // 请求 Wake Lock 防止屏幕休眠
+                await requestWakeLock();
             } catch (error) {
                 showError('无法访问麦克风：' + error.message);
             }
@@ -1637,7 +1693,13 @@
             isPaused = !isPaused;
             const btn = document.querySelector('.btn-pause');
             btn.textContent = isPaused ? '继续' : '暂停';
-        }
+            
+            // 暂停时释放 Wake Lock，继续时重新请求
+            if (isPaused) {
+                releaseWakeLock();
+            } else {
+                requestWakeLock();
+            }
 
         function stopTraining() {
             if (confirm('确定要结束训练吗？')) {
@@ -1664,7 +1726,9 @@
             if (audioContext) {
                 audioContext.close();
             }
-
+            
+            // 释放 Wake Lock
+            releaseWakeLock();
             showResults();
         }
 
@@ -1732,6 +1796,9 @@
                 
                 console.log('initAudioForTuner: Audio initialized, starting processing');
                 processTunerAudio();
+                
+                // 请求 Wake Lock 防止调音时屏幕休眠
+                await requestWakeLock();
             } catch (error) {
                 console.error('initAudioForTuner: Error', error);
                 alert('无法访问麦克风: ' + error.message);
@@ -1922,7 +1989,9 @@
                 audioContext = null;
             }
             
-            showScreen('setupScreen');
+            // 释放 Wake Lock
+            releaseWakeLock();
+            
         }
 
         function startTrainingFromTuner() {
