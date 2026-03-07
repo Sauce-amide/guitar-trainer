@@ -952,20 +952,6 @@
                 }
             }
         }
-
-        // 当标签页重新可见时，重新获取 Wake Lock
-        document.addEventListener('visibilitychange', async () => {
-            // 只在训练或调音器激活时重新获取
-            const trainingScreen = document.getElementById('trainingScreen');
-            const tunerScreen = document.getElementById('tunerScreen');
-            const isTrainingActive = trainingScreen && trainingScreen.classList.contains('active');
-            const isTunerActive = tunerScreen && tunerScreen.classList.contains('active');
-
-            if ((isTrainingActive || isTunerActive) && document.visibilityState === 'visible') {
-                console.log('标签页重新可见，重新请求 Wake Lock');
-                await requestWakeLock();
-            }
-        });
         // ==================== 深色模式 ==================== 
         function initTheme() {
             const savedTheme = localStorage.getItem('theme');
@@ -1003,6 +989,20 @@
             loadSettings();
             createNoteCheckboxes();
             loadAudioDevices();
+            
+            // 设置 Wake Lock 自动重新获取监听器
+            document.addEventListener('visibilitychange', async () => {
+                // 只在训练或调音器激活时重新获取
+                const trainingScreen = document.getElementById('trainingScreen');
+                const tunerScreen = document.getElementById('tunerScreen');
+                const isTrainingActive = trainingScreen && trainingScreen.classList.contains('active');
+                const isTunerActive = tunerScreen && tunerScreen.classList.contains('active');
+
+                if ((isTrainingActive || isTunerActive) && document.visibilityState === 'visible') {
+                    console.log('标签页重新可见，重新请求 Wake Lock');
+                    await requestWakeLock();
+                }
+            });
         }
 
         function createNoteCheckboxes() {
@@ -1700,7 +1700,7 @@
             } else {
                 requestWakeLock();
             }
-
+        }
         function stopTraining() {
             if (confirm('确定要结束训练吗？')) {
                 endTraining();
