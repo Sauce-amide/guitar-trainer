@@ -406,8 +406,8 @@
         }
 
         @keyframes flashGreen {
-            0%, 100% { background: white; }
-            50% { background: #c8e6c9; }
+            0%, 100% { background: var(--container-bg); }
+            50% { background: var(--success-color); opacity: 0.2; }
         }
 
         .error-message {
@@ -450,7 +450,7 @@
             padding: 15px 10px;
             border: 2px solid var(--border-color);
             border-radius: 10px;
-            background: white;
+            background: var(--container-bg);
             cursor: pointer;
             font-size: 1.1em;
             font-weight: bold;
@@ -1251,12 +1251,12 @@
             const height = canvas.height;
             
             // Clear canvas - use CSS variable
-            const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+            const bgColor = getComputedStyle(document.body).getPropertyValue('--card-bg').trim();
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
             
             // Draw center line - use CSS variable
-            const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+            const borderColor = getComputedStyle(document.body).getPropertyValue('--border-color').trim();
             ctx.strokeStyle = borderColor;
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -1265,7 +1265,7 @@
             ctx.stroke();
             
             // Draw waveform - use CSS variable
-            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim();
+            const primaryColor = getComputedStyle(document.body).getPropertyValue('--text-primary').trim();
             ctx.strokeStyle = primaryColor;
             ctx.lineWidth = 2;
             ctx.beginPath();
@@ -1291,7 +1291,7 @@
             // 添加调试信息 - 显示波形统计
             const rms = Math.sqrt(buffer.reduce((sum, val) => sum + val * val, 0) / buffer.length);
             const peak = Math.max(...Array.from(buffer).map(Math.abs));
-            const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text-secondary').trim();
+            const textColor = getComputedStyle(document.body).getPropertyValue('--text-secondary').trim();
             ctx.fillStyle = textColor;
             ctx.font = '12px monospace';
             ctx.fillText(`RMS: ${(rms * 100).toFixed(2)}% | Peak: ${(peak * 100).toFixed(2)}%`, 10, 20);
@@ -1781,12 +1781,12 @@
             const height = tunerWaveformCanvas.height;
             const ctx = tunerWaveformCtx;
             
-            const bgColor = getComputedStyle(document.documentElement).getPropertyValue('--card-bg').trim();
+            const bgColor = getComputedStyle(document.body).getPropertyValue('--card-bg').trim();
             ctx.fillStyle = bgColor;
             ctx.fillRect(0, 0, width, height);
             
             ctx.lineWidth = 2;
-            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--text-primary').trim();
+            const primaryColor = getComputedStyle(document.body).getPropertyValue('--text-primary').trim();
             ctx.strokeStyle = primaryColor;
             ctx.beginPath();
             
@@ -1809,7 +1809,7 @@
             ctx.stroke();
             
             // Draw center line
-            const borderColor = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim();
+            const borderColor = getComputedStyle(document.body).getPropertyValue('--border-color').trim();
             ctx.strokeStyle = borderColor;
             ctx.lineWidth = 1;
             ctx.beginPath();
